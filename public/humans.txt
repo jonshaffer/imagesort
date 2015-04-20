@@ -1,0 +1,17 @@
+/* the humans responsible % colophon */
+/* humanstxt.org */
+
+/* TEAM */
+Everything by:	Jon Shaffer
+Contact:		jon@hyperfluidsolutions.com
+Twitter:		@hyperfluidity
+From:			Pittsburgh, PA
+
+/* SITE */
+Name:			Hyperfluid Solutions
+Contact:		hello@hyperfluidsolutions.com
+Twitter:		@hyperfluidity
+Launched:		2014-08-01
+Last Update:	2015-02-06
+Languages:		English
+Standards:		HTML5, CSS3

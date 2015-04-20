@@ -1,0 +1,69 @@
+/* Styles go here */
+
+body {
+    background-color: rgb(246,242,229);
+}
+
+ul {
+	padding: 0;
+	margin: 0;
+}
+
+.as-sortable-placeholder {
+	display: inline-block;
+	margin: 15px 0;
+}
+
+.as-sortable-item {
+	background: none;
+	border: none;
+	border-radius: initial;
+	margin: 15px;
+	list-style: none;
+}
+
+.as-sortable-item-handle {
+	max-width: 80%;
+	height: auto;
+	display: block;
+	margin: auto;
+	border-radius: 15px;
+	box-shadow: 2px 2px 3px black;
+}
+
+.container-fluid {
+	overflow: auto;
+}
+
+#sortable-container {
+    display: inline-block;
+}
+
+.row-fluid {
+	white-space: nowrap;
+}
+
+.row-fluid .col-lg-3 {
+	display: inline-block;
+}
+
+.scroll-up, .scroll-down {
+	position: fixed;
+	height: 0;
+	left: 0;
+	right: 0;
+	background-color: rgba(0,0,0,.7);
+}
+
+.scroll-up {
+	top: 0%;
+}
+
+.scroll-down {
+	bottom: 0%;
+}
+
+.scroll-up.moving, .scroll-down.moving {
+	height: 150px;
+	transition: .1s linear height;
+}
