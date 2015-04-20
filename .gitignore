@@ -1,4 +1,9 @@
-node_modules/
+node_modules
+public/components
 npm-debug.log
 Thumbs.db
-newrelic_agent*
+.tmp
+*.log
+.idea
+*.iml
+*.yml
