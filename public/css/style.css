@@ -67,3 +67,42 @@ ul {
 	height: 150px;
 	transition: .1s linear height;
 }
+
+/** Slidebox-Vertical **/
+.slidebox-container {
+    position: relative;
+}
+
+.slidebox {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* iOS swipe-scroll support */
+    padding: 10px;
+}
+
+.slidebox-content {
+}
+
+.slidebox-controls {
+    border: #fff 1px solid;
+    border-radius: 3px;
+    opacity: 0.5;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 15px; /* don't cover scrollbar */
+    height: 10%;
+}
+
+.slidebox-up {
+    background: rgba(128, 128, 128, 0.5) url(../images/up-arrow.png) center center no-repeat;
+    top: 0;
+    cursor: w-resize;
+}
+
+.slidebox-down {
+    background: rgba(128, 128, 128, 0.5) url(../images/down-arrow.png) center center no-repeat;
+    bottom: 0;
+    cursor: e-resize;
+}

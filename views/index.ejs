@@ -16,6 +16,7 @@
 </head>
 <body ng-controller="MainCtrl">
 <div class="container-fluid">
+    <slidebox speed="25">
     <ul as-sortable="sortableOptions" ng-model="photos" class="row-fluid" ng-scrollable>
         <li ng-repeat="photo in photos" as-sortable-item class="as-sortable-item col-lg-12">
 	        <div>
@@ -23,12 +24,11 @@
 	        </div>
         </li>
     </ul>
-    <div ng-click="scrollDown" class="scroll-up" ng-class="{'moving': isMoving}">
-        <!--  -->
+    </slidebox>
+    <!--<div ng-click="scrollDown" class="scroll-up" ng-class="{'moving': isMoving}">
     </div>
     <div ng-click="scrollDown" class="scroll-down" ng-class="{'moving': isMoving}">
-        <!--  -->
-	</div>
+	</div>-->
 </div>
 </body>
 </html>

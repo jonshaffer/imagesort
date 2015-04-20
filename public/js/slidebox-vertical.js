@@ -1,66 +1,15 @@
-'use strict'
+/**
+* Slidebox Directive
+*
+* version 0.9
+* http://github.com/keithjgrant/slidebox
+*
+* by Keith J Grant
+* http://elucidblue.com
+*/
+angular.module('Slidebox', [])
 
-var app = angular.module('plunker', ['ui.sortable']);
-
-app.controller('MainCtrl', function ($scope) {
-  var moving = false;
-  $scope.photos = populateList();
-
-  function populateList() {
-    var array = [];
-    for (var i = 1; i <= 10; i++) {
-      array.push({url: "/images/" + i + ".jpg"});
-    }
-
-    return array;
-  }
-
-  window.globalScope = $scope;
-
-  $scope.isMoving = function () { return moving; }
-
-  $scope.sortableOptions = {
-    containment: '#sortable-container',
-    additionalPlaceholderClass: 'col-lg-12',
-    accept: function(sourceItemHandleScope, destSortableScope) {
-      showScrollHelpers();
-      return true;
-    },
-    orderChanged: function(event) {
-      window.clearTimeout(hideScrollHelpersTimeout);
-      hideScrollHelpers();
-    }
-  };
-
-  var hideScrollHelpersTimeout = window.setTimeout(hideScrollHelpers, 0);
-  var hideScrollHelpers = function () {
-    moving = false;
-  };
-
-  function showScrollHelpers() {
-    moving = true;
-
-    hideScrollHelpersTimeout = window.setTimeout(hideScrollHelpers, 1500);
-  };
-}).directive('ngTouchstart', [function() {
-    return function(scope, element, attr) {
-
-        element.on('touchstart', function(event) {
-            scope.$apply(function() { 
-                scope.$eval(attr.ngTouchstart); 
-            });
-        });
-    };
-}]).directive('ngTouchend', [function() {
-    return function(scope, element, attr) {
-
-        element.on('touchend', function(event) {
-            scope.$apply(function() { 
-                scope.$eval(attr.ngTouchend); 
-            });
-        });
-    };
-}]).directive('slidebox', function slideboxDirective () {
+.directive('slidebox', function slideboxDirective () {
     return {
         template: '<div class="slidebox-container">' +
                     '<div class="slidebox">' +
@@ -83,12 +32,12 @@ app.controller('MainCtrl', function ($scope) {
                 interval,
                 didScroll = true; // trigger an initial check on load
 
-            if (attrs.contentHeight) {
-                scope.$watch(attrs.contentHeight, function (value) {
+            if (attrs.contentWidth) {
+                scope.$watch(attrs.contentWidth, function (value) {
                     if (value == Number(value)) {
                         value += 'px';
                     }
-                    content.children[0].style.height = value;
+                    content.children[0].style.width = value;
                     didScroll = true;
                 });
             }
@@ -104,7 +53,7 @@ app.controller('MainCtrl', function ($scope) {
                     velocity = maxVelocity / 2;
                 }
                 interval = setInterval(function () {
-                    content.scrollTop += velocity;
+                    content.scrollLeft += velocity;
                     didScroll = true;
                 }, 50);
             }
@@ -140,8 +89,8 @@ app.controller('MainCtrl', function ($scope) {
                     opacityScalar;
 
                 if (isUp) {
-                    // scale is % from the top side; convert to negative %
-                    // from the bottom:
+                    // scale is % from the left side; convert to negative %
+                    // from the right:
                     scale -= 1;
 
                     controlEl.style.opacity = defaultOpacity + scale * -1;
@@ -162,13 +111,13 @@ app.controller('MainCtrl', function ($scope) {
                     return;
                 }
 
-                if (content.scrollTop === 0) {
+                if (content.scrollLeft === 0) {
                     upEl.style.display = 'none';
                 } else {
                     upEl.style.display = 'block';
                 }
 
-                if (content.scrollTop === content.scrollHeight - content.offsetHeight) {
+                if (content.scrollLeft === content.scrollWidth - content.offsetWidth) {
                     downEl.style.display = 'none';
                 } else {
                     downEl.style.display = 'block';
@@ -218,4 +167,6 @@ app.controller('MainCtrl', function ($scope) {
             setInterval(updateControlVisability, 250);
         }
     };
-});
+})
+
+;
