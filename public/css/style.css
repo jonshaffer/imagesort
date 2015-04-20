@@ -2,6 +2,8 @@
 
 body {
     background-color: rgb(246,242,229);
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 ul {
@@ -37,14 +39,6 @@ ul {
 
 #sortable-container {
     display: inline-block;
-}
-
-.row-fluid {
-	white-space: nowrap;
-}
-
-.row-fluid .col-lg-3 {
-	display: inline-block;
 }
 
 .scroll-up, .scroll-down {
@@ -105,4 +99,9 @@ ul {
     background: rgba(128, 128, 128, 0.5) url(../images/down-arrow.png) center center no-repeat;
     bottom: 0;
     cursor: e-resize;
+}
+
+.col-lg-12 {
+	float: none;
+	display: inline-block;
 }

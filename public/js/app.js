@@ -77,11 +77,13 @@ app.controller('MainCtrl', function ($scope) {
             var content = element.children()[0],
                 upEl = element.children()[1],
                 downEl = element.children()[2],
+                body = document.getElementsByTagName('body')[0],
                 velocity = 0,
                 defaultOpacity = Number(getComputedStyle(upEl).opacity),
                 maxVelocity = Number(attrs.speed) || 25,
                 interval,
-                didScroll = true; // trigger an initial check on load
+                didScroll = true,
+                isScrolling = false; // trigger an initial check on load
 
             if (attrs.contentHeight) {
                 scope.$watch(attrs.contentHeight, function (value) {
@@ -103,14 +105,17 @@ app.controller('MainCtrl', function ($scope) {
                 } else {
                     velocity = maxVelocity / 2;
                 }
+                if (isScrolling) return;
                 interval = setInterval(function () {
-                    content.scrollTop += velocity;
+                    body.scrollTop += velocity;
                     didScroll = true;
+                    isScrolling = true;
                 }, 50);
             }
 
             function stopScroll (controlEl) {
                 clearInterval(interval);
+                isScrolling = false;
                 controlEl.style.opacity = defaultOpacity;
                 velocity = 0;
             }
@@ -162,13 +167,15 @@ app.controller('MainCtrl', function ($scope) {
                     return;
                 }
 
-                if (content.scrollTop === 0) {
+                return;
+
+                if (body.scrollTop === 0) {
                     upEl.style.display = 'none';
                 } else {
                     upEl.style.display = 'block';
                 }
 
-                if (content.scrollTop === content.scrollHeight - content.offsetHeight) {
+                if (body.scrollTop === content.scrollHeight - content.offsetHeight) {
                     downEl.style.display = 'none';
                 } else {
                     downEl.style.display = 'block';
@@ -211,10 +218,25 @@ app.controller('MainCtrl', function ($scope) {
                 event.preventDefault(); // cancel mouse event
                 stopScroll(downEl);
             }, false);
-
             content.addEventListener('scroll', function () {
                 didScroll = true;
             });
+
+            body.addEventListener('touchmove', function (event) {
+                var screenY = event.touches[0].clientY;
+                console.log(event.touches[0]);
+                if (screenY > (window.innerHeight * .9)) {
+                  touchStart(downEl, false);
+                  return;
+                } else if (screenY < (window.innerHeight * .1)) {
+                  touchStart(upEl, true);
+                  return;
+                } else {
+                  stopScroll(downEl);
+                  stopScroll(upEl);
+                }
+            }, false);
+
             setInterval(updateControlVisability, 250);
         }
     };
