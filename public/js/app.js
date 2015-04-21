@@ -87,7 +87,7 @@ app.controller('MainCtrl', function ($scope, $http) {
   function getPhotoOrder() {
     $http.get('/images')
         .success(function (data, status, headers, config) {
-            updatePhotos(data.length > 0) ? data : populateList());
+            updatePhotos((data.length > 0) ? data : populateList());
         })
         .error(function (data, status, headers, config) {
             console.log('Error getting images from server.');
