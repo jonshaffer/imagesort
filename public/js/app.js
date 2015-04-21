@@ -6,6 +6,7 @@ app.controller('MainCtrl', function ($scope, $http) {
   var moving = false;
   window.globalScope = $scope;
   $scope.photos = getPhotoOrder();
+  $scope.swapPhotos = [];
 
     $scope.photoSwap = {
         swapPairIndex: 1,
@@ -45,8 +46,6 @@ app.controller('MainCtrl', function ($scope, $http) {
             cachedLeftPhoto
         ];
     };
-
-  $scope.swapPhotos = $scope.photoSwap.getSwapPair();
 
   function checkSwapPair(num) {
     if (num >= $scope.photos.length - 1) {
@@ -88,7 +87,7 @@ app.controller('MainCtrl', function ($scope, $http) {
   function getPhotoOrder() {
     $http.get('/images')
         .success(function (data, status, headers, config) {
-            $scope.photos = (data.length > 0) ? data : populateList();
+            updatePhotos(data.length > 0) ? data : populateList());
         })
         .error(function (data, status, headers, config) {
             console.log('Error getting images from server.');
@@ -98,7 +97,7 @@ app.controller('MainCtrl', function ($scope, $http) {
                     var localPhotoOrder = angular.fromJson(window.localStorage.getItem("photoOrder"));
 
                     if (localPhotoOrder !== null) {
-                        $scope.photos = localPhotoOrder;
+                        updatePhotos(localPhotoOrder);
                     }
                 } catch (e) {
                     return populateList();
@@ -116,6 +115,11 @@ app.controller('MainCtrl', function ($scope, $http) {
     }
 
     return array;
+  }
+
+  function updatePhotos(array) {
+    $scope.photos = array;
+    $scope.swapPhotos = $scope.photoSwap.getSwapPair();
   }
 }).directive('slidebox', function slideboxDirective () {
     return {
