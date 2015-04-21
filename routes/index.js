@@ -5,6 +5,8 @@ var express = require('express'),
 	pg = require('pg')
 	pgConString = process.env.POSTGRESQL_STRING || 'postgresql_connection_string';
 
+	console.log(pgConString);
+
 var transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
