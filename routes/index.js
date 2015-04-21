@@ -1,7 +1,9 @@
 var express = require('express'),
 	nodemailer = require('nodemailer'),
 	router = express.Router(),
-	util = require('util');
+	util = require('util'),
+	pg = require('pg')
+	pgConString = 'postgres://blkdufmdxzedui:OmBMyOWscQlrgnRMb3UdrRJAGM@ec2-107-22-161-155.compute-1.amazonaws.com:5432/d20bdfc8c1o3p9?ssl=true';
 
 var transporter = nodemailer.createTransport({
     service: 'Gmail',
@@ -23,93 +25,44 @@ router.get('/', function(req, res, next) {
 });
 
 router.route('/images')
-.get(function(req, res, next) {
-	res.json('images', {});
-})
-.post(function(req, res, next) {
-	res.json({});
-});
+	.get(function(req, res, next) {
+		var images = [];
 
-/* GET contact page
-router.get('/contact', function(req, res, next) {
-	res.render('contact', new defaultPageObject('Contact', false));
-});*/
+		pg.connect(pgConString, function(err, client, done) {
+			if (err) {
+				return console.error('Error connecting to PostgreSQL', err);
+			}
 
-/* POST contact page 
-router.post('/contact', contactPost);*/
+			client.query('SELECT * FROM imagesfull WHERE "Id"=1', function(err, result) {
+				done();
 
-function contactPost (req, res) {
-	req.assert('name', 'Name is required. Give us something to call you.').notEmpty();
-	req.assert('email', 'Invalid email address.').isEmail();
+				if(err) {
+			    	return console.error('Error running Insert query', err);
+			    };
 
-	var validationErrors = req.validationErrors();
+			    console.log(images);
+				res.json(result.rows[0].allimages);
+			});
+		});
+	})
+	.post(function(req, res, next) {
+		var jsonBody = JSON.stringify(req.body);
+		pg.connect(pgConString, function(err, client, done) {
+			if (err) {
+				return console.error('Error connecting to PostgreSQL', err);
+			}
 
-	if (validationErrors) {
-		res.render('contact', { 'contact': true, title: 'Contact', errors: validationErrors, form: returnFormData(validationErrors, req.body) });
-		return;
-		//res.render('contact', { 'contact': true, 'complete': true, title: 'Contact' });
-	}
+			client.query('UPDATE imagesfull SET allimages = ($1) WHERE "Id"=1', [jsonBody], function(err, result) {
+				done();
 
-	sendContactEmail(req);
+				if(err) {
+			    	return console.error('Error running Insert query', err);
+			    };
 
-	res.render('contact', { 'contact': true, 'complete': true, title: 'Contact' });
-}
-
-function returnFormData(validationErrors, formData) {
-	var returnFormData = {
-		name: formData.name,
-		email: formData.email,
-		company: formData.company,
-		project: formData.project
-	};
-
-	for (i = 0, j = validationErrors.length; i < j; i++) {
-		returnFormData[validationErrors[i].param + 'Error'] = true;
-	}
-
-	return returnFormData;
-}
-
-function sendContactEmail(req) {
-	var formattedEmail = formatContactForm(req.body);
-	var replyTo = formatReplyTo(req.body);
-
-	var mailOptions = {
-		from: 'NodeMailer <'+process.env.GMAIL_USERNAME+'>', // sender address
-		to: 'Contact Form <'+process.env.GMAIL_USERNAME+'>', // list of receivers
-		replyTo: replyTo,
-		subject: 'Hello, from the website!', // Subject line
-		text: formattedEmail.plainText, // plaintext body
-		html: formattedEmail.html // html body
-	}
-
-	// send mail with defined transport object
-	transporter.sendMail(mailOptions, function(error, info){
-	    if (error) {
-	        console.error(error);
-	    } else {
-	        console.log('A contact form sent: ' + info.response);
-	    }
+			    console.log(jsonBody);
+				res.json(req.body);
+			});
+		});
 	});
-}
-
-function formatReplyTo(formData) {
-	return formData.name+ '<'+formData.email+'>';
-}
-
-function formatContactForm(formData) {
-	return {
-		plainText: ''+
-			'Name: '+formData.name+
-			'Company: '+formData.company+
-			'Email: '+formData.email+
-			'Project: '+formData.project,
-		html: ''+
-			'<b>Name:</b>'+formData.name+'<br>'+
-			'<b>Company:</b>'+formData.company+'<br>'+
-			'<b>Email:</b>'+formData.email+'<br>'+
-			'<b>Project:</b>'+formData.project+'<br>'
-	}
-}
 
 module.exports = router;

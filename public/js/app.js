@@ -1,19 +1,11 @@
 'use strict'
 
-var app = angular.module('plunker', ['ui.sortable', 'ngTouch']);
+var app = angular.module('plunker', ['ui.sortable']);
 
-app.controller('MainCtrl', function ($scope) {
+app.controller('MainCtrl', function ($scope, $http) {
   var moving = false;
+  window.globalScope = $scope;
   $scope.photos = getPhotoOrder();
-
-  function populateList() {
-    var array = [];
-    for (var i = 1; i <= 10; i++) {
-      array.push({url: "/images/" + i + ".jpg"});
-    }
-
-    return array;
-  }
 
     $scope.photoSwap = {
         swapPairIndex: 1,
@@ -29,13 +21,11 @@ app.controller('MainCtrl', function ($scope) {
   
     $scope.nextSwapPair = function () {
         $scope.photoSwap.swapPairIndex = checkSwapPair(++$scope.photoSwap.swapPairIndex);
-        console.log($scope.photoSwap.swapPairIndex);
         $scope.swapPhotos = $scope.photoSwap.getSwapPair();
     };
 
     $scope.previousSwapPair = function () {
         $scope.photoSwap.swapPairIndex = checkSwapPair(--$scope.photoSwap.swapPairIndex);
-        console.log($scope.photoSwap.swapPairIndex);
         $scope.swapPhotos = $scope.photoSwap.getSwapPair();
     };
 
@@ -54,7 +44,6 @@ app.controller('MainCtrl', function ($scope) {
             cachedRightPhoto,
             cachedLeftPhoto
         ];
-        console.log($scope.photos);
     };
 
   $scope.swapPhotos = $scope.photoSwap.getSwapPair();
@@ -69,40 +58,65 @@ app.controller('MainCtrl', function ($scope) {
     return num;
   }
 
-  $scope.isMoving = function () { return moving; }
-
   $scope.sortableOptions = {
     containment: '#sortable-container',
-    additionalPlaceholderClass: 'col-lg-12',
+    additionalPlaceholderClass: 'col-xs-12',
     accept: function(sourceItemHandleScope, destSortableScope) {
-      showScrollHelpers();
-      return true;
+        return true;
     },
     orderChanged: function(event) {
-      window.clearTimeout(hideScrollHelpersTimeout);
-      hideScrollHelpers();
+        savePhotoOrder();
     }
   };
 
-  var hideScrollHelpersTimeout = window.setTimeout(hideScrollHelpers, 0);
-  var hideScrollHelpers = function () {
-    moving = false;
-  };
-
-  function showScrollHelpers() {
-    moving = true;
-
-    hideScrollHelpersTimeout = window.setTimeout(hideScrollHelpers, 1500);
-  };
-
   function savePhotoOrder() {
-    // Post to API
+    var cachedPhotos = $scope.photos;
+
+    $http.post('/images', cachedPhotos)
+        .success(function(data, status, headers, config) {
+            console.log('Photo order successfully saved: ', data);
+        })
+        .error(function(data, status, headers, config) {
+            console.log('Photo order save failed. Reverting to localStorage if available.');
+
+            if (Modernizr.localStorage) {
+                window.localStorage.setItem("photoOrder", angular.toJson(cachedPhotos));
+            }
+        });
   };
 
   function getPhotoOrder() {
-    // Get to API
+    $http.get('/images')
+        .success(function (data, status, headers, config) {
+            $scope.photos = (data.length > 0) ? data : populateList();
+        })
+        .error(function (data, status, headers, config) {
+            console.log('Error getting images from server.');
+
+            if (Modernizr.localStorage) {
+                try {
+                    var localPhotoOrder = angular.fromJson(window.localStorage.getItem("photoOrder"));
+
+                    if (localPhotoOrder !== null) {
+                        $scope.photos = localPhotoOrder;
+                    }
+                } catch (e) {
+                    return populateList();
+                }
+            }
+        });
+
     return populateList();
   };
+
+  function populateList() {
+    var array = [];
+    for (var i = 1; i <= 10; i++) {
+      array.push({url: "/images/" + i + ".jpg"});
+    }
+
+    return array;
+  }
 }).directive('slidebox', function slideboxDirective () {
     return {
         template: '<div class="slidebox-container">' +
@@ -266,7 +280,6 @@ app.controller('MainCtrl', function ($scope) {
 
             body.addEventListener('touchmove', function (event) {
                 var screenY = event.touches[0].clientY;
-                console.log(event.touches[0]);
                 if (screenY > (window.innerHeight * .9)) {
                   touchStart(downEl, false);
                   return;
@@ -281,7 +294,6 @@ app.controller('MainCtrl', function ($scope) {
             window.onscroll = windowScroll;
 
             function windowScroll() {
-                console.log('onscroll!');
                 if (body.scrollTop === 0) {
                     upEl.style.display = 'none';
                 } else {

@@ -17,6 +17,11 @@ ul {
 	box-shadow: 2px 2px 3px black;
 }
 
+.col-xs-12 {
+	float: none;
+	display: inline-block;
+}
+
 /**** Desktop Styles ****/
 
 .desktop {
