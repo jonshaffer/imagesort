@@ -1,10 +1,10 @@
 'use strict'
 
-var app = angular.module('plunker', ['ui.sortable']);
+var app = angular.module('plunker', ['ui.sortable', 'ngTouch']);
 
 app.controller('MainCtrl', function ($scope) {
   var moving = false;
-  $scope.photos = populateList();
+  $scope.photos = getPhotoOrder();
 
   function populateList() {
     var array = [];
@@ -15,7 +15,59 @@ app.controller('MainCtrl', function ($scope) {
     return array;
   }
 
-  window.globalScope = $scope;
+    $scope.photoSwap = {
+        swapPairIndex: 1,
+        getSwapPair: function () {
+            var swapPairNumber = checkSwapPair($scope.photoSwap.swapPairIndex);
+
+            return [
+                $scope.photos[swapPairNumber],
+                $scope.photos[swapPairNumber + 1]
+            ];
+        }
+    };
+  
+    $scope.nextSwapPair = function () {
+        $scope.photoSwap.swapPairIndex = checkSwapPair(++$scope.photoSwap.swapPairIndex);
+        console.log($scope.photoSwap.swapPairIndex);
+        $scope.swapPhotos = $scope.photoSwap.getSwapPair();
+    };
+
+    $scope.previousSwapPair = function () {
+        $scope.photoSwap.swapPairIndex = checkSwapPair(--$scope.photoSwap.swapPairIndex);
+        console.log($scope.photoSwap.swapPairIndex);
+        $scope.swapPhotos = $scope.photoSwap.getSwapPair();
+    };
+
+    $scope.swap = function () {
+        var swapPairNumber = checkSwapPair($scope.photoSwap.swapPairIndex);
+
+        var cachedLeftPhoto = $scope.photos[swapPairNumber];
+        var cachedRightPhoto = $scope.photos[swapPairNumber + 1];
+
+        $scope.photos[swapPairNumber] = cachedRightPhoto;
+        $scope.photos[swapPairNumber + 1] = cachedLeftPhoto;
+
+        savePhotoOrder();
+
+        $scope.swapPhotos = [
+            cachedRightPhoto,
+            cachedLeftPhoto
+        ];
+        console.log($scope.photos);
+    };
+
+  $scope.swapPhotos = $scope.photoSwap.getSwapPair();
+
+  function checkSwapPair(num) {
+    if (num >= $scope.photos.length - 1) {
+        --num;
+    }
+    if (num < 1) {
+        num = 1;
+    }
+    return num;
+  }
 
   $scope.isMoving = function () { return moving; }
 
@@ -42,25 +94,16 @@ app.controller('MainCtrl', function ($scope) {
 
     hideScrollHelpersTimeout = window.setTimeout(hideScrollHelpers, 1500);
   };
-}).directive('ngTouchstart', [function() {
-    return function(scope, element, attr) {
 
-        element.on('touchstart', function(event) {
-            scope.$apply(function() { 
-                scope.$eval(attr.ngTouchstart); 
-            });
-        });
-    };
-}]).directive('ngTouchend', [function() {
-    return function(scope, element, attr) {
+  function savePhotoOrder() {
+    // Post to API
+  };
 
-        element.on('touchend', function(event) {
-            scope.$apply(function() { 
-                scope.$eval(attr.ngTouchend); 
-            });
-        });
-    };
-}]).directive('slidebox', function slideboxDirective () {
+  function getPhotoOrder() {
+    // Get to API
+    return populateList();
+  };
+}).directive('slidebox', function slideboxDirective () {
     return {
         template: '<div class="slidebox-container">' +
                     '<div class="slidebox">' +
@@ -114,7 +157,7 @@ app.controller('MainCtrl', function ($scope) {
             }
 
             function stopScroll (controlEl) {
-                clearInterval(interval);
+                clearInterval(interval);  
                 isScrolling = false;
                 controlEl.style.opacity = defaultOpacity;
                 velocity = 0;
@@ -167,19 +210,18 @@ app.controller('MainCtrl', function ($scope) {
                     return;
                 }
 
-                return;
-
                 if (body.scrollTop === 0) {
                     upEl.style.display = 'none';
                 } else {
                     upEl.style.display = 'block';
                 }
 
-                if (body.scrollTop === content.scrollHeight - content.offsetHeight) {
+                if (body.scrollTop + window.innerHeight - content.offsetHeight === 0) {
                     downEl.style.display = 'none';
                 } else {
                     downEl.style.display = 'block';
                 }
+
                 didScroll = false;
             }
 
@@ -236,6 +278,22 @@ app.controller('MainCtrl', function ($scope) {
                   stopScroll(upEl);
                 }
             }, false);
+            window.onscroll = windowScroll;
+
+            function windowScroll() {
+                console.log('onscroll!');
+                if (body.scrollTop === 0) {
+                    upEl.style.display = 'none';
+                } else {
+                    upEl.style.display = 'block';
+                }
+
+                if (body.scrollTop + window.innerHeight - content.offsetHeight >= 0) {
+                    downEl.style.display = 'none';
+                } else {
+                    downEl.style.display = 'block';
+                }
+            };
 
             setInterval(updateControlVisability, 250);
         }
