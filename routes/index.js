@@ -3,7 +3,7 @@ var express = require('express'),
 	router = express.Router(),
 	util = require('util'),
 	pg = require('pg')
-	pgConString = 'postgres://blkdufmdxzedui:OmBMyOWscQlrgnRMb3UdrRJAGM@ec2-107-22-161-155.compute-1.amazonaws.com:5432/d20bdfc8c1o3p9?ssl=true';
+	pgConString = process.env.POSTGRESQL_STRING || 'postgresql_connection_string';
 
 var transporter = nodemailer.createTransport({
     service: 'Gmail',
